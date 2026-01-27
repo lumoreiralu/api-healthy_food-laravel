@@ -21,16 +21,27 @@ class RecipeController extends Controller
      */
     public function store(Request $request)
     {
+
         $request->validate([
             'title' => 'required|string|max:255',
             'instructions' => 'required|string',
+            'ingredients' => 'required|array',
+            'ingredients.*.id' => 'required|exists:ingredients,id',
+            'ingredients.*.amount' => 'required|numeric|min:0'
         ]);
     
-        $recipe = Recipe::create($request->all());
+
+        $recipe = Recipe::create($request->only(['title', 'instructions']));
     
+
+        foreach ($request->ingredients as $item) {
+            $recipe->ingredients()->attach($item['id'], ['amount' => $item['amount']]);
+        }
+    
+
         return response()->json([
-            'message' => 'Recipe created successfully',
-            'data' => $recipe
+            'message' => 'Recipe and ingredients linked successfully',
+            'data' => $recipe->load('ingredients')
         ], 201);
     }
 
