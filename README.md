@@ -1,59 +1,66 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Healthy Food API 
+This is a professional RESTful API built with Laravel 11 designed to manage healthy recipes and calculate nutritional data automatically. It features a many-to-many relationship between recipes and ingredients, with built-in logic for nutritional health labels.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+ Features
+Authentication: Secure login and logout using Laravel Sanctum (Bearer Tokens).
 
-## About Laravel
+Nutritional Engine: Automatically calculates total calories, proteins, fats, and carbs for each recipe.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Smart Labeling: Categorizes recipes as "High Protein", "Low Calorie", or "Low Fat" based on nutritional thresholds.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Data Integrity: Implements detach() on deletion to prevent orphan records in the database.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Database Seeding: Includes ready-to-use healthy ingredients and recipes for testing.
 
-## Learning Laravel
+ Tech Stack
+Framework: Laravel 11
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Language: PHP 8.2+
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Database: MySQL
 
-## Laravel Sponsors
+Tools: Postman (API Testing), Composer, Artisan.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+ Installation & Setup
+Clone the repository:
+- git clone https://github.com/lumoreiralu/api-healthy_food-laravel.git
+- cd healthy-food-api
 
-### Premium Partners
+Install dependencies:
+- composer install
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Environment Setup:
+- Duplicate .env.example and rename it to .env.
+- Configure your database credentials (e.g. DB_DATABASE=db_healthy_food).
+- Run php artisan key:generate.
 
-## Contributing
+Database Migration & Seeding:
+- Run the command to set up everything:
+    php artisan migrate:fresh --seed
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Run the Server:
+- php artisan serve
 
-## Code of Conduct
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Security Vulnerabilities
+API Endpoints (Quick Overview)
+Method	    Endpoint	        Access	Description
+POST	    /api/register	    Public	Create a new user account.
+POST	    /api/login	        Public	Obtain a Bearer Token.
+GET	        /api/recipes	    Public	List all healthy recipes.
+GET	        /api/recipes/{id}	Public	Detailed view with health labels.
+POST	    /api/recipes	    Private	Create a recipe (Requires Token).
+DELETE	    /api/recipes/{id}	Private	Delete recipe and associations.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+e.g GET /api/ingredients/
 
-## License
+![Postman Test Results](documentation/screenshots/get-ingredients-postman.png)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+e.g GET /api/recipes/
+![Postman Test Results](documentation/screenshots/get-recipes-postman.png)
+
+e.g POST /api/register
+![Postman Test Results](documentation/screenshots/post-reigster-postman.png)
+
+db-diagram
+![DB-Diagram](documentation/db-diagram.png)
