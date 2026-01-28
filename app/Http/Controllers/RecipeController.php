@@ -70,11 +70,31 @@ class RecipeController extends Controller
         }
 
         // Agregamos los totales al objeto antes de mandarlo
-        $recipe->calculated_calories = $totalCalories;
-        $recipe->calculated_proteins = $totalProteins;
-        $recipe->calculated_carbs = $totalCarbs;
-        $recipe->calculated_fats = $totalFats;
+        $recipe->total_calories = round($totalCalories,2);
+        $recipe->save();
+        $recipe->calculated_proteins = round($totalProteins,2);
+        $recipe->calculated_carbs = round($totalCarbs,2);
+        $recipe->calculated_fats = round($totalFats,2);
 
+        $health_tags = [];
+
+        if ($totalProteins > 20) {
+            $health_tags[] = 'High Protein';
+        }
+
+        if ($totalCalories < 400) {
+            $health_tags[] = 'Low Calorie';
+        }
+
+        if ($totalFats < 10) {
+            $health_tags[] = 'Low Fat';
+        }
+
+        $recipe->nutritional_summary = [
+            'proteins' => round($totalProteins, 2),
+            'fats' => round($totalFats, 2),
+            'health_labels' => $health_tags
+        ];
         return response()->json($recipe, 200);
     }
 
