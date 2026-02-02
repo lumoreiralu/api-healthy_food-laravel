@@ -48,12 +48,14 @@ class AuthController extends Controller
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|unique:users',
         'password' => 'required|string|min:8|confirmed',
+        'rol'=>'required|string|in:admin,user,editor', //agrego rol para crud
     ]);
 
     $user = User::create([
         'name' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($request->password), 
+        'rol' => $request->rol,
     ]);
 
     $token = $user->createToken('auth_token')->plainTextToken;
