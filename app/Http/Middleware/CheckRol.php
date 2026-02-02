@@ -13,7 +13,7 @@ class CheckRol
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, $roles): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (!$request->user() || !in_array($request->user()->rol, $roles)) {
             return response()->json(['message' => 'No tienes permisos para esta acción'], 403);

@@ -57,7 +57,7 @@ e.g GET /api/ingredients/
 ![Postman Test Results](documentation/screenshots/get-ingredients-postman.png)
 
 e.g GET /api/recipes/
-![Postman Test Results](documentation/screenshots/get:recipes:postman.png)
+![Postman Test Results](documentation/screenshots/get-recipes-postman.png)
 
 e.g POST /api/register
 ![Postman Test Results](documentation/screenshots/post-register-postman.png)
