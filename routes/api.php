@@ -22,13 +22,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    //edita y crea solo user=> admin/editor
+    Route::post('/recipes', [RecipeController::class, 'store'])
+    ->middleware('rol:admin,editor');
+    Route::put('/recipes/{id}', [RecipeController::class, 'update'])
+    ->middleware('rol:admin,editor');
+    Route::post('/ingredients', [IngredientController::class, 'store'])
+    ->middleware('rol:admin,editor');
+    Route::put('/ingredients/{id}', [IngredientController::class, 'update'])
+    ->middleware('rol:admin,editor');
+   
+    //borra solo el user=>admin
+    Route::delete('/recipes/{id}', [RecipeController::class, 'destroy'])
+    ->middleware('rol:admin');
+    Route::delete('/ingredients/{id}', action: [RecipeController::class, 'destroy'])
+    ->middleware('rol:admin');
 
-    Route::post('/recipes', [RecipeController::class, 'store']);
-    Route::put('/recipes/{id}', [RecipeController::class, 'update']);
-    Route::delete('/recipes/{id}', [RecipeController::class, 'destroy']);
-    Route::post('/ingredients', [IngredientController::class, 'store']);
-    Route::put('/ingredients/{id}', [IngredientController::class, 'update']);
-    Route::delete('/ingredients/{id}', [RecipeController::class, 'destroy']);
+
+    
 
 
     //Si no quisiera separar las acciones 
