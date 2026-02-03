@@ -64,17 +64,21 @@ class RecipeController extends Controller
         foreach ($recipe->ingredients as $ingredient) {
             $amount = $ingredient->pivot->amount; // Cantidad en gramos
             $totalCalories += ($ingredient->calories_per_gram * $amount);
-            $totalProteins += ($ingredient->protein * $amount);
-            $totalCarbs += ($ingredient->carbs * $amount);
-            $totalFats += ($ingredient->fats * $amount);
+            // Proteínas, Carbos y Grasas suelen tener valor nutricional
+            // cada 100g, por eso divido la cantidad por 100
+            $factor = $amount / 100;
+
+            $totalProteins += ($ingredient->protein * $factor);
+            $totalCarbs += ($ingredient->carbs * $factor);
+            $totalFats += ($ingredient->fats * $factor);
         }
 
         // Agregamos los totales al objeto antes de mandarlo
         $recipe->total_calories = round($totalCalories,2);
-        $recipe->save();
         $recipe->calculated_proteins = round($totalProteins,2);
         $recipe->calculated_carbs = round($totalCarbs,2);
         $recipe->calculated_fats = round($totalFats,2);
+        $recipe->save(); //para guardar el valor en la db y no calcularlo cada vez
 
         $health_tags = [];
 
@@ -91,8 +95,8 @@ class RecipeController extends Controller
         }
 
         $recipe->nutritional_summary = [
-            'proteins' => round($totalProteins, 2),
-            'fats' => round($totalFats, 2),
+            'proteins' => number_format($totalProteins, 2, '.', '.'),
+            'fats' => number_format($totalFats, 2, '.', '.'),
             'health_labels' => $health_tags
         ];
         return response()->json($recipe, 200);
