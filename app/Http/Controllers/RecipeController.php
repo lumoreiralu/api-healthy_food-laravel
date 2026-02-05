@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\RecipeFilters;
 use Illuminate\Http\Request;
 use App\Models\Recipe;
 
@@ -10,9 +11,28 @@ class RecipeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request, RecipeFilters $filters)
     {
-        $recipes = Recipe::all();
+        $query = Recipe::query();
+    
+        $query = $filters->apply($query);
+    
+        // ordenamiento
+        $sort = $request->query('sort', 'created_at');
+        $order = $request->query('order', 'desc');
+    
+        $allowedSorts = ['title', 'total_calories', 'calculated_proteins', 'created_at'];
+        
+        // Si NO está en los permitidos, por defecto: 'created_at'
+        if (!in_array($sort, $allowedSorts)) {
+            $sort = 'created_at';
+        }
+    
+        $query->orderBy($sort, $order === 'asc' ? 'asc' : 'desc');
+    
+        // paginación 
+        $recipes = $query->paginate($request->query('size', 10))->withQueryString(); //para mantener los filtros en la siguiente pagina
+    
         return response()->json($recipes, 200);
     }
 
@@ -37,7 +57,8 @@ class RecipeController extends Controller
         foreach ($request->ingredients as $item) {
             $recipe->ingredients()->attach($item['id'], ['amount' => $item['amount']]);
         }
-    
+        $recipe->load('ingredients');
+        $this->updateNutritionalValues($recipe);
 
         return response()->json([
             'message' => 'Recipe and ingredients linked successfully',
@@ -56,47 +77,23 @@ class RecipeController extends Controller
             return response()->json(['message' => 'Recipe not found'], 404);
         }
 
-        $totalProteins = 0;
-        $totalCalories = 0;
-        $totalCarbs = 0;
-        $totalFats = 0;
-
-        foreach ($recipe->ingredients as $ingredient) {
-            $amount = $ingredient->pivot->amount; // Cantidad en gramos
-            $totalCalories += ($ingredient->calories_per_gram * $amount);
-            // Proteínas, Carbos y Grasas suelen tener valor nutricional
-            // cada 100g, por eso divido la cantidad por 100
-            $factor = $amount / 100;
-
-            $totalProteins += ($ingredient->protein * $factor);
-            $totalCarbs += ($ingredient->carbs * $factor);
-            $totalFats += ($ingredient->fats * $factor);
-        }
-
-        // Agregamos los totales al objeto antes de mandarlo
-        $recipe->total_calories = round($totalCalories,2);
-        $recipe->calculated_proteins = round($totalProteins,2);
-        $recipe->calculated_carbs = round($totalCarbs,2);
-        $recipe->calculated_fats = round($totalFats,2);
-        $recipe->save(); //para guardar el valor en la db y no calcularlo cada vez
-
         $health_tags = [];
 
-        if ($totalProteins > 20) {
+        if ($recipe->calculated_proteins > 20) {
             $health_tags[] = 'High Protein';
         }
 
-        if ($totalCalories < 400) {
+        if ($recipe->total_calories < 400) {
             $health_tags[] = 'Low Calorie';
         }
 
-        if ($totalFats < 10) {
+        if ($recipe->calculated_fats < 10) {
             $health_tags[] = 'Low Fat';
         }
 
         $recipe->nutritional_summary = [
-            'proteins' => number_format($totalProteins, 2, '.', '.'),
-            'fats' => number_format($totalFats, 2, '.', '.'),
+            'proteins' => number_format($recipe->calculated_proteins, 2, '.', '.'),
+            'fats' => number_format($recipe->calculated_fats , 2, '.', '.'),
             'health_labels' => $health_tags
         ];
         return response()->json($recipe, 200);
@@ -130,5 +127,32 @@ class RecipeController extends Controller
         }
         $recipe->delete();
         return response()->json(['message' => 'Recipe deleted successfully'], 200);
+    }
+
+    private function updateNutritionalValues(Recipe $recipe)
+    {
+        $recipe->refresh(); 
+        $ingredients = $recipe->ingredients;
+
+        $totalProteins = 0;
+        $totalCalories = 0;
+        $totalCarbs = 0;
+        $totalFats = 0;
+
+        foreach ($recipe->ingredients as $ingredient) {
+            $amount = $ingredient->pivot->amount;
+            $totalCalories += ($ingredient->calories_per_gram * $amount);
+            $totalProteins += ($ingredient->protein * ($amount / 100));
+            $totalCarbs += ($ingredient->carbs * ($amount / 100));
+            $totalFats += ($ingredient->fats * ($amount / 100));
+        }
+
+        // Guardamos en la base de datos
+        $recipe->update([
+            'total_calories' => round($totalCalories, 2),
+            'calculated_proteins' => round($totalProteins, 2),
+            'calculated_carbs' => round($totalCarbs, 2),
+            'calculated_fats' => round($totalFats, 2),
+        ]);
     }
 }

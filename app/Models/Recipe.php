@@ -7,7 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Recipe extends Model
 {
-    protected $fillable = ['title', 'instructions', 'total_calories'];
+    protected $fillable = [
+        'title',
+        'instructions', 
+        'total_calories',
+        'calculated_proteins', 
+        'calculated_carbs', 
+        'calculated_fats'
+    ];
 
     protected $casts = [
         'total_calories' => 'decimal:2',

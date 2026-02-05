@@ -8,8 +8,7 @@ use App\Http\Controllers\AuthController;
 //usuario no logueados realizan login o registran nuevos usuarios
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
-
-
+Route::get('/recipes', [RecipeController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -19,7 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     //usuarios logueados pueden ver recetas e ingredientes y sus detalles
-    Route::get('/recipes', [RecipeController::class, 'index']);
+
     Route::get('/recipes/{id}', [RecipeController::class, 'show']);
     Route::get('/ingredients', [IngredientController::class, 'index']);
     Route::get('/ingredients/{id}', [IngredientController::class, 'show']);
