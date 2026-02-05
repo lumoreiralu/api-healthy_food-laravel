@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Filters\RecipeFilters;
 use Illuminate\Http\Request;
 use App\Models\Recipe;
+use App\Http\Resources\RecipeResource;
 
 class RecipeController extends Controller
 {
@@ -33,7 +34,7 @@ class RecipeController extends Controller
         // paginación 
         $recipes = $query->paginate($request->query('size', 10))->withQueryString(); //para mantener los filtros en la siguiente pagina
     
-        return response()->json($recipes, 200);
+        return RecipeResource::collection($recipes);
     }
 
     /**
@@ -77,25 +78,6 @@ class RecipeController extends Controller
             return response()->json(['message' => 'Recipe not found'], 404);
         }
 
-        $health_tags = [];
-
-        if ($recipe->calculated_proteins > 20) {
-            $health_tags[] = 'High Protein';
-        }
-
-        if ($recipe->total_calories < 400) {
-            $health_tags[] = 'Low Calorie';
-        }
-
-        if ($recipe->calculated_fats < 10) {
-            $health_tags[] = 'Low Fat';
-        }
-
-        $recipe->nutritional_summary = [
-            'proteins' => number_format($recipe->calculated_proteins, 2, '.', '.'),
-            'fats' => number_format($recipe->calculated_fats , 2, '.', '.'),
-            'health_labels' => $health_tags
-        ];
         return response()->json($recipe, 200);
     }
 

@@ -17,11 +17,12 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    //usuarios logueados pueden ver recetas e ingredientes y sus detalles
+    //usuarios logueados pueden ver recetas e ingredientes con sus detalles
 
     Route::get('/recipes/{id}', [RecipeController::class, 'show']);
     Route::get('/ingredients', [IngredientController::class, 'index']);
     Route::get('/ingredients/{id}', [IngredientController::class, 'show']);
+    
     //edita y crea solo user => admin/editor
     Route::post('/recipes', [RecipeController::class, 'store'])
     ->middleware('rol:admin,editor');
